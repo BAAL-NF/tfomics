@@ -82,6 +82,7 @@ def pick_edges(section, nucleotide_list, dinucleotide_sequence, rng):
     section - string of nucleotides to be shuffled
     nucleotide_list - list of unique nucleotides appearing in section
     dinucleotide_sequence - dictionary of lists of next-neigbhour nucleotide pairs
+    rng - instance of random.Random() to use when shuffling
 
     Returns:
     edge_list - list of chosen graph edges
