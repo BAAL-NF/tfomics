@@ -1,4 +1,4 @@
-README.rst
+README.md
 setup.py
 tfonics/__init__.py
 tfonics/dinucleotide_shuffle.py

@@ -1,8 +1,11 @@
 [tool.poetry]
 name = "tfonics"
-version = "0.1.0"
-description = ""
+version = "0.1.1"
+description = "A collection of functions and utilities for the tfonics project"
 authors = ["Øyvind Almelid <oyvind.almelid@igmm.ed.ac.uk>"]
+readme = "README.md"
+repository = "https://git.ecdf.ed.ac.uk/oalmelid/tfonics"
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.7"
