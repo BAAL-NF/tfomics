@@ -1,4 +1,4 @@
-# tfonics
+# tfomics
 
 A collection of functions and utilities for the tfonics project.
 
@@ -18,6 +18,6 @@ Below is a wish list for code standards, at current no CI exists and so none of 
 
 ## Unit tests
 
-Unit tests can be found in [the test folder](https://git.ecdf.ed.ac.uk/oalmelid/tfonics/tree/master/tests).
+Unit tests can be found in [the test folder](https://git.ecdf.ed.ac.uk/oalmelid/tfomics/tree/master/tests).
 
 We use pytest for testing and pytest-cov for code coverage.
