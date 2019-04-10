@@ -1,8 +1,0 @@
-README.md
-setup.py
-tfonics/__init__.py
-tfonics/dinucleotide_shuffle.py
-tfonics.egg-info/PKG-INFO
-tfonics.egg-info/SOURCES.txt
-tfonics.egg-info/dependency_links.txt
-tfonics.egg-info/top_level.txt
