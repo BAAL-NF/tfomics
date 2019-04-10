@@ -1,11 +1,11 @@
 # tfomics
 
-A collection of functions and utilities for the tfonics project.
+A collection of functions and utilities for the tfomics project.
 
 To add this project to your poetry project, run
 
 ```bash
-poetry add --git git@git.ecdf.ed.ac.uk:oalmelid/tfonics.git
+poetry add --git git@git.ecdf.ed.ac.uk:oalmelid/tfomics.git
 ```
 
 # Code standards

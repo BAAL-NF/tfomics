@@ -1,19 +1,19 @@
 Metadata-Version: 1.2
 Name: tfomics
-Version: 0.1.1
-Summary: A collection of functions and utilities for the tfonics project
+Version: 0.1.0
+Summary: A collection of functions and utilities for the tfomics project
 Home-page: https://git.ecdf.ed.ac.uk/oalmelid/tfomics
 Author: Øyvind Almelid
 Author-email: oyvind.almelid@igmm.ed.ac.uk
 License: UNKNOWN
-Description: # tfonics
+Description: # tfomics
         
-        A collection of functions and utilities for the tfonics project.
+        A collection of functions and utilities for the tfomics project.
         
         To add this project to your poetry project, run
         
         ```bash
-        poetry add --git git@git.ecdf.ed.ac.uk:oalmelid/tfonics.git
+        poetry add --git git@git.ecdf.ed.ac.uk:oalmelid/tfomics.git
         ```
         
         # Code standards
@@ -26,7 +26,7 @@ Description: # tfonics
         
         ## Unit tests
         
-        Unit tests can be found in [the test folder](https://git.ecdf.ed.ac.uk/oalmelid/tfonics/tree/master/tests).
+        Unit tests can be found in [the test folder](https://git.ecdf.ed.ac.uk/oalmelid/tfomics/tree/master/tests).
         
         We use pytest for testing and pytest-cov for code coverage.
         

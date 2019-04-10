@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from tfonics import dinucleotide_shuffle
+from tfomics import dinucleotide_shuffle
 
 
 def get_all_dinucleotide_pairs(sequence):
