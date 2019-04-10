@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "tfonics"
-version = "0.1.1"
-description = "A collection of functions and utilities for the tfonics project"
+name = "tfomics"
+version = "0.1.0"
+description = "A collection of functions and utilities for the tfomics project"
 authors = ["Øyvind Almelid <oyvind.almelid@igmm.ed.ac.uk>"]
 readme = "README.md"
-repository = "https://git.ecdf.ed.ac.uk/oalmelid/tfonics"
+repository = "https://git.ecdf.ed.ac.uk/oalmelid/tfomics"
 license = "MIT"
 
 [tool.poetry.dependencies]
