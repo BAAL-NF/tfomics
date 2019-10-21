@@ -6,3 +6,5 @@ tfomics.egg-info/PKG-INFO
 tfomics.egg-info/SOURCES.txt
 tfomics.egg-info/dependency_links.txt
 tfomics.egg-info/top_level.txt
+tfomics/data_structures/allele_seq.py
+tfomics/data_structures/reference_genome.py
