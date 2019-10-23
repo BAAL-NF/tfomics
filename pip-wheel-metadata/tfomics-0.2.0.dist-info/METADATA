@@ -1,0 +1,44 @@
+Metadata-Version: 2.1
+Name: tfomics
+Version: 0.2.0
+Summary: A collection of functions and utilities for the tfomics project
+Home-page: https://git.ecdf.ed.ac.uk/oalmelid/tfomics
+License: MIT
+Author: Øyvind Almelid
+Author-email: oyvind.almelid@igmm.ed.ac.uk
+Requires-Python: >=3.6,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Requires-Dist: numpy (>=1.17,<2.0)
+Requires-Dist: pandas (>=0.25.2,<0.26.0)
+Requires-Dist: pysam (>=0.15.3,<0.16.0)
+Requires-Dist: scipy (>=1.3,<2.0)
+Project-URL: Repository, https://git.ecdf.ed.ac.uk/oalmelid/tfomics
+Description-Content-Type: text/markdown
+
+# tfomics
+
+A collection of functions and utilities for the tfomics project.
+
+To add this project to your poetry project, run
+
+```bash
+poetry add --git ssh://git@git.ecdf.ed.ac.uk/oalmelid/tfomics.git
+```
+
+# Code standards
+
+Below is a wish list for code standards, at current no CI exists and so none of this is strongly enforced.
+
+- Linting with pylint is enforced on all merges to master.
+- We use pytest for unit tests and enforce 100% code coverage
+- Code should be formatted with autopep8
+
+## Unit tests
+
+Unit tests can be found in [the test folder](https://git.ecdf.ed.ac.uk/oalmelid/tfomics/tree/master/tests).
+
+We use pytest for testing and pytest-cov for code coverage.
+

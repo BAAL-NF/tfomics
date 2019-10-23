@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: tfomics
-Version: 0.1.0
+Version: 0.2.0
 Summary: A collection of functions and utilities for the tfomics project
 Home-page: https://git.ecdf.ed.ac.uk/oalmelid/tfomics
 Author: Øyvind Almelid
@@ -13,7 +13,7 @@ Description: # tfomics
         To add this project to your poetry project, run
         
         ```bash
-        poetry add --git git@git.ecdf.ed.ac.uk:oalmelid/tfomics.git
+        poetry add --git ssh://git@git.ecdf.ed.ac.uk/oalmelid/tfomics.git
         ```
         
         # Code standards
@@ -31,4 +31,4 @@ Description: # tfomics
         We use pytest for testing and pytest-cov for code coverage.
         
 Platform: UNKNOWN
-Requires-Python: >=3.7,<4.0
+Requires-Python: >=3.6,<4.0
