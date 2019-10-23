@@ -23,14 +23,17 @@ def _fit_multiple_binomial_samples(ref_counts, alt_counts):
         x_coords.append(0.)
         x_coords.append(1.)
 
-        y_coords.append(1-probability)
+        y_coords.append(1.-probability)
         y_coords.append(probability)
 
         sigma.append(variance)
         sigma.append(variance)
 
-    params, cov = curve_fit(lambda x, a, b: (a*x)+b, x_coords,
-                            y_coords, sigma=sigma, absolute_sigma=True)
+    params, cov = curve_fit(lambda x, a, b: (a*x)+b,
+                            x_coords,
+                            y_coords,
+                            sigma=sigma,
+                            absolute_sigma=True)
 
     return params[0], cov[0][0]**0.5
 
