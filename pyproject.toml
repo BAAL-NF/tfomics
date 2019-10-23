@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tfomics"
-version = "0.1.0"
+version = "0.2.0"
 description = "A collection of functions and utilities for the tfomics project"
 authors = ["Øyvind Almelid <oyvind.almelid@igmm.ed.ac.uk>"]
 readme = "README.md"
@@ -12,6 +12,7 @@ python = "^3.6"
 numpy = "^1.17"
 pandas = "^0.25.2"
 pysam = "^0.15.3"
+scipy = "^1.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
