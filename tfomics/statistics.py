@@ -6,14 +6,6 @@ import pandas as pd
 from scipy.optimize import curve_fit
 
 
-# def _binomial_effect_size(ref_count, alt_count):
-#     """Treat ref vs. alt as a binomial distribution and
-#     rescale/translate the AR to a range of [-1, 1]
-#     """
-#     prob, var = _binomial_probability_and_variance(ref_count, alt_count)
-
-#     return 2.*(prob-0.5), 2.*var
-
 def calculate_effect_size(data_frame, param_column="ar", stdev_column="ar_stdev"):
     """Calculate the ASB effect size by translating and rescaling the estimated allelic ratio
     and associated standard deviations.
@@ -26,8 +18,8 @@ def calculate_effect_size(data_frame, param_column="ar", stdev_column="ar_stdev"
 
 
 def estimate_binomial_probability(data_frame,
-                                  positives_column="ref_count",
-                                  negatives_column="alt_count"):
+                                  positives_column="alt_count",
+                                  negatives_column="ref_count"):
     """Estimate the allelic ratio from the read counts to a reference and alternate allele,
     treating them as positives and negatives in a binomial experiment.
 
@@ -36,23 +28,28 @@ def estimate_binomial_probability(data_frame,
     ar_stdev - standard deviation for the allelic ratio
     """
     return data_frame.apply(lambda row:
-                            _binomial_probability_and_variance(row[positives_column],
-                                                               row[negatives_column]),
+                            pd.Series(_binomial_probability_and_variance(row[positives_column],
+                                                                         row[negatives_column]),
+                                      index=["ar", "ar_stdev"]),
                             axis=1)
 
 
-def _binomial_probability_and_variance(ref, alt):
+def _binomial_probability_and_variance(positives, negatives):
     """Return an estimate for the probability and
-    variance of a single binomial experiment where
-    ref and alt are treated as the two possible outcomes.
+    variance of a single binomial experiment with the number of
+    positive and negative outcomes as given.
     """
-    total = alt+ref
+    # Require a minimum of 1 for both positive and negative outcomes.
+    # This is equivalent to setting a bound on your estimator for
+    # p by assuming that if you ran one more trial it would come up
+    # with the opposite outcome.
 
-    # If a SNP with 0 reads has been passed to us, throw an error.
-    if total == 0:
-        raise ValueError("Encountered SNP with 0 reads")
+    positives = max(positives, 1)
+    negatives = max(negatives, 1)
 
-    p_estimate = alt/total
+    total = positives + negatives
+
+    p_estimate = positives/total
     var_estimate = (p_estimate*(1.-p_estimate)/total)**0.5
 
     return p_estimate, var_estimate
@@ -98,7 +95,7 @@ def group_statistics(data_frame,
     Returns a new data frame indexed by `group_columns` with the pooled statistics.
     """
     return (data_frame
-            .groupby(group_columns)
+            .groupby(list(group_columns))
             .apply(lambda group:
                    pd.Series(
                        _pool_summary_statistics(group[param_column], group[stdev_column]),
@@ -142,7 +139,7 @@ def allele_seq_effect_size(data_frame):
     # Compute reference and alternate counts
 
     probabilities = (data_frame
-                     .apply(get_ref_and_alt_counts, index=1)
+                     .apply(get_ref_and_alt_counts, axis=1)
                      .pipe(estimate_binomial_probability))
-    return (group_statistics(data_frame.join(probabilities))
+    return (group_statistics(data_frame.join(probabilities), group_columns=('chrm', 'snppos'))
             .pipe(calculate_effect_size))
