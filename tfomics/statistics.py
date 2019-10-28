@@ -2,78 +2,144 @@
 potential allele-specific binding sites.
 """
 
+import pandas as pd
 from scipy.optimize import curve_fit
 
 
-def _fit_multiple_binomial_samples(ref_counts, alt_counts):
-    """Fit multiple ASB samples by doing a least-squares fit of
-    a curve with points (0, Ref/Total) and (1, Alt/Total).
-
-    Returns an estimated effect-size (Ref-Alt)/Total and
-    an estimated variance in the form of sqrt(Cov[0,0]),
-    wher Cov is the covariance matrix returned by the least-squares
-    fit.
+def calculate_effect_size(data_frame, param_column="ar", stdev_column="ar_stdev"):
+    """Calculate the ASB effect size by translating and rescaling the estimated allelic ratio
+    and associated standard deviations.
     """
-    x_coords = []
-    y_coords = []
-    sigma = []
-    for ref, alt in zip(ref_counts, alt_counts):
-        probability, variance = _binomial_probability_and_variance(ref, alt)
-
-        x_coords.append(0.)
-        x_coords.append(1.)
-
-        y_coords.append(1.-probability)
-        y_coords.append(probability)
-
-        sigma.append(variance)
-        sigma.append(variance)
-
-    params, cov = curve_fit(lambda x, a, b: (a*x)+b,
-                            x_coords,
-                            y_coords,
-                            sigma=sigma,
-                            absolute_sigma=True)
-
-    return params[0], cov[0][0]**0.5
+    return data_frame.apply(lambda row:
+                            pd.Series(
+                                (2.*row[param_column]-1, 2*row[stdev_column]),
+                                index=["es", "es_stdev"]),
+                            axis=1)
 
 
-def _binomial_effect_size(ref_count, alt_count):
-    """Treat ref vs. alt as a binomial distribution and
-    rescale/translate the AR to a range of [-1, 1]
+def estimate_binomial_probability(data_frame,
+                                  positives_column="alt_count",
+                                  negatives_column="ref_count"):
+    """Estimate the allelic ratio from the read counts to a reference and alternate allele,
+    treating them as positives and negatives in a binomial experiment.
+
+    Returns a new data frame with the columns
+    ar - allelic ratio
+    ar_stdev - standard deviation for the allelic ratio
     """
-    prob, var = _binomial_probability_and_variance(ref_count, alt_count)
+    return data_frame.apply(lambda row:
+                            pd.Series(_binomial_probability_and_variance(row[positives_column],
+                                                                         row[negatives_column]),
+                                      index=["ar", "ar_stdev"]),
+                            axis=1)
 
-    return 2.*(prob-0.5), 2.*var
 
-
-def _binomial_probability_and_variance(ref, alt):
+def _binomial_probability_and_variance(positives, negatives):
     """Return an estimate for the probability and
-    variance of a single binomial experiment where
-    ref and alt are treated as the two possible outcomes.
+    variance of a single binomial experiment with the number of
+    positive and negative outcomes as given.
     """
-    total = alt+ref
+    # Require a minimum of 1 for both positive and negative outcomes.
+    # This is equivalent to setting a bound on your estimator for
+    # p by assuming that if you ran one more trial it would come up
+    # with the opposite outcome.
 
-    # If a SNP with 0 reads has been passed to us, throw an error.
-    if total == 0:
-        raise ValueError("Encountered SNP with 0 reads")
+    positives = max(positives, 1)
+    negatives = max(negatives, 1)
 
-    p_estimate = alt/total
+    total = positives + negatives
+
+    p_estimate = positives/total
     var_estimate = (p_estimate*(1.-p_estimate)/total)**0.5
 
     return p_estimate, var_estimate
 
 
-def asb_effect_size(ref_counts, alt_counts):
-    """Estimate the effect size and variance at an allele-specific binding site
-    by treating each sample as an independent sample following a binomial distribution.
+def _pool_summary_statistics(points, stdev):
+    """Pool summary statistics from multiple samples by performing
+    a weighted least-squares fit of a constant to the data points.
 
-    If we have multiple samples, we perform a least-squares fit to a line with coordinates
-    (0, Ref/Total) and (1, Alt/Total) and return the slope of the line and the
-    square root of the covariance of the slope.
+    points - points to be averaged
+    stdev - list of standard deviations for each point
+
+    Returns a tuple with the pooled average of the input points, and
+    the estimated standard deviation of the pooled average.
     """
 
-    if len(ref_counts) == 1:
-        return _binomial_effect_size(ref_counts[0], alt_counts[0])
+    if len(points) != len(stdev):
+        raise IndexError("One or more points missing an associated standard deviation estimate")
+
+    if len(points) == 1:
+        return (points.iat[0], stdev.iat[0])
+
+    params, cov = curve_fit(lambda x, a: a,
+                            range(len(points)),
+                            points,
+                            sigma=stdev,
+                            absolute_sigma=True)
+
+    return (params[0], cov[0][0]**0.5)
+
+
+def group_statistics(data_frame,
+                     param_column="ar",
+                     stdev_column="ar_stdev",
+                     group_columns=("CHROM", "POS")):
+    """Combine effect sizes and variances across multiple samples.
+    Inputs:
+    data_frame - data frame containing summary statistics
+    param_column - column containing the effect size to be pooled
+    stedv_column - column containing the standard deviations of the effect size
+    group_columns - column names to group by (e.g. chromosome and position for SNPs)
+
+    Returns a new data frame indexed by `group_columns` with the pooled statistics.
+    """
+    return (data_frame
+            .groupby(list(group_columns))
+            .apply(lambda group:
+                   pd.Series(
+                       _pool_summary_statistics(group[param_column], group[stdev_column]),
+                       index=[param_column, stdev_column])))
+
+
+def get_ref_and_alt_counts(row):
+    """Get the read counts for the reference and alternate allele from
+    an allele-seq dataframe.
+    """
+    ref = row['ref']
+
+    # This won't quite work if neither the maternal or paternal
+    # alleles are the reference allele, though this is rare.
+    if row['mat_all'] == row['ref']:
+        alt = row['pat_all']
     else:
-        return _fit_multiple_binomial_samples(ref_counts, alt_counts)
+        alt = row['mat_all']
+
+    return pd.Series((row[f'c{ref}'], row[f'c{alt}']),
+                     index=['ref_count', 'alt_count'])
+
+
+def allele_seq_effect_size(data_frame):
+    """Calculate the ASB effect-size of a data frame containing allele-seq data.
+    This method is designed to work on an alle-seq dataframe and presumes the
+    following columns are present:
+    chrm - chromosome
+    snppos - position of heterozygous SNP
+    mat_all/pat_all - maternal and paternal alleles
+    cA/cC/cG/cT - read counts for each nucleotide at SNP site
+    ref - nucleotide considered as the reference allele
+    """
+    # Check that all required columns are present.
+    required_cols = {'chrm', 'snppos', 'mat_all', 'pat_all', 'cA', 'cC', 'cG', 'cT', 'ref'}
+    missing_cols = required_cols - set(data_frame.columns)
+
+    if missing_cols:
+        raise KeyError('data frame missing columns: {}'.format(missing_cols))
+
+    # Compute reference and alternate counts
+
+    probabilities = (data_frame
+                     .apply(get_ref_and_alt_counts, axis=1)
+                     .pipe(estimate_binomial_probability))
+    return (group_statistics(data_frame.join(probabilities), group_columns=('chrm', 'snppos'))
+            .pipe(calculate_effect_size))
