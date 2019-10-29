@@ -95,4 +95,11 @@ def test_full_allele_seq():
     results = tfomics.statistics.allele_seq_effect_size(allele_seq_data)
     # I'm assuming these come out in order of chromosome and SNP
     assert results["es"].round(4).tolist() == [0.6667, -0.3333, 0.2]
-    assert results["es_stdev"].round(4).tolist() == [0.1521, 0.1721, 0.2190]
+    assert results["es_stdev"].round(4).tolist() == [0.1521, 0.1721, 0.2191]
+
+
+def test_pool_statistics_missing_stdev():
+    """Check that we throw a sensible error if we're attempting to pool summary
+    statistics with a mis-matched set of standard deviation estimates"""
+    with pytest.raises(IndexError):
+        tfomics.statistics._pool_summary_statistics([1, 2, 3], [1, 2])
