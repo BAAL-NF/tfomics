@@ -51,7 +51,7 @@ def test_rescale_p_and_variance():
 
     # Not the greatest test, but this is at least a regression check. These are
     # manually calculated.
-    assert effect_sizes["es"].round(4).tolist() == [-0.8, 0.8, 0., -0.4667]
+    assert effect_sizes["es"].round(4).tolist() == [0.8, -0.8, 0., 0.4667]
     assert effect_sizes["es_stdev"].round(4).tolist() == [0.1897, 0.1897, 0.1826, 0.1318]
 
 
@@ -94,5 +94,5 @@ def test_full_allele_seq():
                                     'ref': ["C", "C", "G", "G", "T"]})
     results = tfomics.statistics.allele_seq_effect_size(allele_seq_data)
     # I'm assuming these come out in order of chromosome and SNP
-    assert results["es"].round(4).tolist == [0.6667, -0.3333, 0.2]
-    assert results["es_stdev"].round(4).tolist == [0.1521, 0.1721, 0.2190]
+    assert results["es"].round(4).tolist() == [0.6667, -0.3333, 0.2]
+    assert results["es_stdev"].round(4).tolist() == [0.1521, 0.1721, 0.2190]

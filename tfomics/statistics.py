@@ -12,14 +12,14 @@ def calculate_effect_size(data_frame, param_column="ar", stdev_column="ar_stdev"
     """
     return data_frame.apply(lambda row:
                             pd.Series(
-                                (2.*row[param_column]-1, 2*row[stdev_column]),
+                                (1-2.*row[param_column], 2*row[stdev_column]),
                                 index=["es", "es_stdev"]),
                             axis=1)
 
 
 def estimate_binomial_probability(data_frame,
-                                  positives_column="alt_count",
-                                  negatives_column="ref_count"):
+                                  positives_column="ref_count",
+                                  negatives_column="alt_count"):
     """Estimate the allelic ratio from the read counts to a reference and alternate allele,
     treating them as positives and negatives in a binomial experiment.
 
