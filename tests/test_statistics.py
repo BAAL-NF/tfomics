@@ -14,7 +14,7 @@ def test_estimate_p():
                                                              positives_column="heads",
                                                              negatives_column="tails")
     assert probs["ar"].round(5).tolist() == [0.1, 0.9, 0.5, 0.26667]
-    assert probs["ar_stdev"].round(5).tolist() == [0.09487, 0.09487, 0.09129, 0.06592]
+    assert probs["ar_sterr"].round(5).tolist() == [0.09487, 0.09487, 0.09129, 0.06592]
 
 
 def test_add_one_if_no_reads():
@@ -25,7 +25,7 @@ def test_add_one_if_no_reads():
                                                              positives_column="heads",
                                                              negatives_column="tails")
     assert probs["ar"].round(5).tolist() == [0.1, 0.1, 0.9]
-    assert probs["ar_stdev"].round(5).tolist() == [0.09487, 0.09487, 0.09487]
+    assert probs["ar_sterr"].round(5).tolist() == [0.09487, 0.09487, 0.09487]
 
 
 def test_swap_positive_and_negative():
@@ -40,19 +40,19 @@ def test_swap_positive_and_negative():
                                                              positives_column="tails",
                                                              negatives_column="heads")
     assert all(heads["ar"].round(5) == (1-tails["ar"]).round(5))
-    assert all(heads["ar_stdev"].round(5) == tails["ar_stdev"].round(5))
+    assert all(heads["ar_sterr"].round(5) == tails["ar_sterr"].round(5))
 
 
 def test_rescale_p_and_variance():
     """Check a few sample values are rescaled correclty by calculate_effect_size"""
     ratios = pd.DataFrame({"ar": [0.1, 0.9, 0.5, 0.26667],
-                           "ar_stdev": [0.09487, 0.09487, 0.09129, 0.06592]})
+                           "ar_sterr": [0.09487, 0.09487, 0.09129, 0.06592]})
     effect_sizes = tfomics.statistics.calculate_effect_size(ratios)
 
     # Not the greatest test, but this is at least a regression check. These are
     # manually calculated.
     assert effect_sizes["es"].round(4).tolist() == [0.8, -0.8, 0., 0.4667]
-    assert effect_sizes["es_stdev"].round(4).tolist() == [0.1897, 0.1897, 0.1826, 0.1318]
+    assert effect_sizes["es_sterr"].round(4).tolist() == [0.1897, 0.1897, 0.1826, 0.1318]
 
 
 def test_group_reffects():
@@ -62,14 +62,14 @@ def test_group_reffects():
     data = pd.DataFrame({
         "group": ["A", "A", "B", "B", "B"],
         "effect": [1., 0., 1., 1., 0.],
-        "stdev": [1., 1., 1., 1., 1.]
+        "sterr": [1., 1., 1., 1., 1.]
     })
     grouped_results = tfomics.statistics.group_statistics(data,
                                                           param_column="effect",
-                                                          stdev_column="stdev",
+                                                          sterr_column="sterr",
                                                           group_columns=("group",))
     assert grouped_results["effect"].round(4).tolist() == [0.5, 0.6667]
-    assert grouped_results["stdev"].round(4).tolist() == [0.7071, 0.5774]
+    assert grouped_results["sterr"].round(4).tolist() == [0.7071, 0.5774]
 
 
 def test_allele_seq_missing_columns():
@@ -95,11 +95,4 @@ def test_full_allele_seq():
     results = tfomics.statistics.allele_seq_effect_size(allele_seq_data)
     # I'm assuming these come out in order of chromosome and SNP
     assert results["es"].round(4).tolist() == [0.6667, -0.3333, 0.2]
-    assert results["es_stdev"].round(4).tolist() == [0.1521, 0.1721, 0.2191]
-
-
-def test_pool_statistics_missing_stdev():
-    """Check that we throw a sensible error if we're attempting to pool summary
-    statistics with a mis-matched set of standard deviation estimates"""
-    with pytest.raises(IndexError):
-        tfomics.statistics._pool_summary_statistics([1, 2, 3], [1, 2])
+    assert results["es_sterr"].round(4).tolist() == [0.1521, 0.1721, 0.2191]

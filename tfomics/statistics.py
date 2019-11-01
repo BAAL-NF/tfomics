@@ -6,14 +6,14 @@ import pandas as pd
 from scipy.optimize import curve_fit
 
 
-def calculate_effect_size(data_frame, param_column="ar", stdev_column="ar_stdev"):
+def calculate_effect_size(data_frame, param_column="ar", sterr_column="ar_sterr"):
     """Calculate the ASB effect size by translating and rescaling the estimated allelic ratio
     and associated standard deviations.
     """
     return data_frame.apply(lambda row:
                             pd.Series(
-                                (1-2.*row[param_column], 2*row[stdev_column]),
-                                index=["es", "es_stdev"]),
+                                (1-2.*row[param_column], 2*row[sterr_column]),
+                                index=["es", "es_sterr"]),
                             axis=1)
 
 
@@ -25,12 +25,12 @@ def estimate_binomial_probability(data_frame,
 
     Returns a new data frame with the columns
     ar - allelic ratio
-    ar_stdev - standard deviation for the allelic ratio
+    ar_sterr - standard deviation for the allelic ratio
     """
     return data_frame.apply(lambda row:
                             pd.Series(_binomial_probability_and_variance(row[positives_column],
                                                                          row[negatives_column]),
-                                      index=["ar", "ar_stdev"]),
+                                      index=["ar", "ar_sterr"]),
                             axis=1)
 
 
@@ -55,27 +55,23 @@ def _binomial_probability_and_variance(positives, negatives):
     return p_estimate, var_estimate
 
 
-def _pool_summary_statistics(points, stdev):
+def _pool_summary_statistics(points, sterr):
     """Pool summary statistics from multiple samples by performing
     a weighted least-squares fit of a constant to the data points.
 
     points - points to be averaged
-    stdev - list of standard deviations for each point
+    sterr - list of standard deviations for each point
 
     Returns a tuple with the pooled average of the input points, and
     the estimated standard deviation of the pooled average.
     """
-
-    if len(points) != len(stdev):
-        raise IndexError("One or more points missing an associated standard deviation estimate")
-
     if len(points) == 1:
-        return (points.iat[0], stdev.iat[0])
+        return (points.iat[0], sterr.iat[0])
 
     params, cov = curve_fit(lambda x, a: a,
                             range(len(points)),
                             points,
-                            sigma=stdev,
+                            sigma=sterr,
                             absolute_sigma=True)
 
     return (params[0], cov[0][0]**0.5)
@@ -83,7 +79,7 @@ def _pool_summary_statistics(points, stdev):
 
 def group_statistics(data_frame,
                      param_column="ar",
-                     stdev_column="ar_stdev",
+                     sterr_column="ar_sterr",
                      group_columns=("CHROM", "POS")):
     """Combine effect sizes and variances across multiple samples.
     Inputs:
@@ -98,8 +94,8 @@ def group_statistics(data_frame,
             .groupby(list(group_columns))
             .apply(lambda group:
                    pd.Series(
-                       _pool_summary_statistics(group[param_column], group[stdev_column]),
-                       index=[param_column, stdev_column])))
+                       _pool_summary_statistics(group[param_column], group[sterr_column]),
+                       index=[param_column, sterr_column])))
 
 
 def get_ref_and_alt_counts(row):
