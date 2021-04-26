@@ -5,8 +5,9 @@ import os
 import pysam
 
 
-class ReferenceGenome():
+class ReferenceGenome:
     """Holds an index to the reference genome and associated lookup methods"""
+
     offset = 100
 
     def __init__(self, filename):
@@ -35,11 +36,12 @@ class ReferenceGenome():
 
         # If we expect the peak position to have a particular base, assert this.
         if expected_base:
-            base_location = min(self.offset, peak_position-1)
+            base_location = min(self.offset, peak_position - 1)
             found_base = sequence[base_location].upper()
-            assert found_base == expected_base, (
-                "Reference genome doesn't match expectations at {}:{}, expected {} found {}"
-                .format(reference, peak_position, expected_base, found_base)
+            assert (
+                found_base == expected_base
+            ), "Reference genome doesn't match expectations at {}:{}, expected {} found {}".format(
+                reference, peak_position, expected_base, found_base
             )
 
         return sequence
@@ -56,7 +58,7 @@ class ReferenceGenome():
         0-indexed tuple of start and end position.
         """
         start = max(peak_position - cls.offset - 1, 0)
-        end = max(peak_position + cls.offset, 2*cls.offset+1)
+        end = max(peak_position + cls.offset, 2 * cls.offset + 1)
         return (start, end)
 
     def get_region(self, reference, start, end):

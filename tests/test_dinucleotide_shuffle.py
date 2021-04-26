@@ -17,8 +17,10 @@ def test_preserves_pair_frequency():
     """Sample 100 shuffles of a short snippet of dinucleotides and assert
     that all sequences have the same frequency of dinucleotide pairs
     """
-    sequence = ("AGCAGAAGCAGGATACAGGGCAGCTCTGAGGCAAGGTAGGC"
-                + "AGGTGCTGTGGTGCTCCCAGGTAGCCTAGTGGGATGCAGGAG")
+    sequence = (
+        "AGCAGAAGCAGGATACAGGGCAGCTCTGAGGCAAGGTAGGC"
+        + "AGGTGCTGTGGTGCTCCCAGGTAGCCTAGTGGGATGCAGGAG"
+    )
 
     samples = [dinucleotide_shuffle(sequence) for _ in range(100)]
 
@@ -32,8 +34,10 @@ def test_error_invalid_nucleotide():
     """Check that we validate the nucleotides by passing in a sequence
     containing an X
     """
-    sequence = ("AGCAGAAGCAGGATACAGGGCAGCTCTGAGGCAAGGTAGGC"
-                + "AGGTGCTGTGGTGCTCCCAGGTAGCCTXGTGGGATGCAGGAG")
+    sequence = (
+        "AGCAGAAGCAGGATACAGGGCAGCTCTGAGGCAAGGTAGGC"
+        + "AGGTGCTGTGGTGCTCCCAGGTAGCCTXGTGGGATGCAGGAG"
+    )
 
     with pytest.raises(AssertionError):
         dinucleotide_shuffle(sequence)
@@ -43,8 +47,10 @@ def test_can_handle_mixed_case():
     """Pass in a string with mixed case. The result will all be uppercase,
     but the shuffle will run successfully.
     """
-    sequence = ("TGCTTACTGGCtaattATTGGttaaggTATTTACTGATTGTCACTT" +
-                "ATTATTggttaaggtATTtactGATTGtcactTACAGGGGTTAGCA")
+    sequence = (
+        "TGCTTACTGGCtaattATTGGttaaggTATTTACTGATTGTCACTT"
+        + "ATTATTggttaaggtATTtactGATTGtcactTACAGGGGTTAGCA"
+    )
 
     shuffled = dinucleotide_shuffle(sequence)
     assert shuffled == shuffled.upper()
@@ -54,8 +60,10 @@ def test_deterministic_once_seeded():
     """Redo the same set of shuffles twice, re-seeding the RNG with the
     same seed each time. This should produce the same results twice.
     """
-    sequence = ("AGCAGAAGCAGGATACAGGGCAGCTCTGAGGCAAGGTAGGC"
-                + "AGGTGCTGTGGTGCTCCCAGGTAGCCTCGTGGGATGCAGGAG")
+    sequence = (
+        "AGCAGAAGCAGGATACAGGGCAGCTCTGAGGCAAGGTAGGC"
+        + "AGGTGCTGTGGTGCTCCCAGGTAGCCTCGTGGGATGCAGGAG"
+    )
 
     rng = random.Random(42)
     first_set = [dinucleotide_shuffle(sequence, rng=rng) for _ in range(10)]
