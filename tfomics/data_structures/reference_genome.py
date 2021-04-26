@@ -1,4 +1,6 @@
 """Helper class containing the HG38 reference genome"""
+# Disable no-member error to work around https://github.com/pysam-developers/pysam/issues/819
+# pylint: disable=no-member
 import os
 import pysam
 

@@ -94,7 +94,8 @@ def group_statistics(data_frame,
             .groupby(list(group_columns))
             .apply(lambda group:
                    pd.Series(
-                       _pool_summary_statistics(group[param_column], group[sterr_column]),
+                       _pool_summary_statistics(
+                           group[param_column], group[sterr_column]),
                        index=[param_column, sterr_column])))
 
 
@@ -126,7 +127,8 @@ def allele_seq_effect_size(data_frame):
     ref - nucleotide considered as the reference allele
     """
     # Check that all required columns are present.
-    required_cols = {'chrm', 'snppos', 'mat_all', 'pat_all', 'cA', 'cC', 'cG', 'cT', 'ref'}
+    required_cols = {'chrm', 'snppos', 'mat_all',
+                     'pat_all', 'cA', 'cC', 'cG', 'cT', 'ref'}
     missing_cols = required_cols - set(data_frame.columns)
 
     if missing_cols:
