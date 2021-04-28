@@ -497,74 +497,98 @@ def filter_frame():
     )
 
 
-def test_filter_gwas_min_maf(filter_frame):
+def test_filter_effect_snps_min_maf(filter_frame):
 
     # if min_MAF < 0.05, both columns should survive
-    filtered = mr.filter_gwas(filter_frame, 0.04, 0.04, 0.04, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.04, 0.04, 0.04, list(filter_frame.trait)
+    )
     pd.testing.assert_frame_equal(filter_frame, filtered)
 
     # Should be the same for min_MAF == 0.05
-    filtered = mr.filter_gwas(filter_frame, 0.05, 0.04, 0.04, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.05, 0.04, 0.04, list(filter_frame.trait)
+    )
     pd.testing.assert_frame_equal(filter_frame, filtered)
 
     # 1. > min_maf > 0.05 results in one entry, that entry being the low one
-    filtered = mr.filter_gwas(filter_frame, 0.25, 0.04, 0.04, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.25, 0.04, 0.04, list(filter_frame.trait)
+    )
     pd.testing.assert_frame_equal(filter_frame[filter_frame.id == "high"], filtered)
 
 
-def test_filter_gwas_min_hwe(filter_frame):
+def test_filter_effect_snps_min_hwe(filter_frame):
     # if min_HWE < 0.05, both columns should survive
-    filtered = mr.filter_gwas(filter_frame, 0.04, 0.04, 0.04, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.04, 0.04, 0.04, list(filter_frame.trait)
+    )
     pd.testing.assert_frame_equal(filter_frame, filtered)
 
     # Should be the same for min_HWE == 0.05
-    filtered = mr.filter_gwas(filter_frame, 0.04, 0.05, 0.04, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.04, 0.05, 0.04, list(filter_frame.trait)
+    )
     pd.testing.assert_frame_equal(filter_frame, filtered)
 
     # 1. > min_HWE > 0.05 results in one entry, that entry being the low one
-    filtered = mr.filter_gwas(filter_frame, 0.04, 0.25, 0.04, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.04, 0.25, 0.04, list(filter_frame.trait)
+    )
     pd.testing.assert_frame_equal(filter_frame[filter_frame.id == "high"], filtered)
 
 
-def test_filter_gwas_min_iscore(filter_frame):
+def test_filter_effect_snps_min_iscore(filter_frame):
     # if min_iscore < 0.05, both columns should survive
-    filtered = mr.filter_gwas(filter_frame, 0.04, 0.04, 0.04, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.04, 0.04, 0.04, list(filter_frame.trait)
+    )
     pd.testing.assert_frame_equal(filter_frame, filtered)
 
     # Should be the same for min_iscore == 0.05
-    filtered = mr.filter_gwas(filter_frame, 0.04, 0.04, 0.05, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.04, 0.04, 0.05, list(filter_frame.trait)
+    )
     pd.testing.assert_frame_equal(filter_frame, filtered)
 
     # 1. > min_iscore > 0.05 results in one entry, that entry being the low one
-    filtered = mr.filter_gwas(filter_frame, 0.04, 0.04, 0.25, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.04, 0.04, 0.25, list(filter_frame.trait)
+    )
     pd.testing.assert_frame_equal(filter_frame[filter_frame.id == "high"], filtered)
 
 
 def test_high_filter_empty_result(filter_frame):
     """Test that a high threshold returns an empty dataframe"""
     # MAF
-    filtered = mr.filter_gwas(filter_frame, 1.2, 0.04, 0.04, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 1.2, 0.04, 0.04, list(filter_frame.trait)
+    )
     assert filtered.empty
 
     # HWE
-    filtered = mr.filter_gwas(filter_frame, 0.04, 1.2, 0.04, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.04, 1.2, 0.04, list(filter_frame.trait)
+    )
     assert filtered.empty
 
     # iscore
-    filtered = mr.filter_gwas(filter_frame, 0.04, 0.04, 1.2, list(filter_frame.trait))
+    filtered = mr.filter_effect_snps(
+        filter_frame, 0.04, 0.04, 1.2, list(filter_frame.trait)
+    )
     assert filtered.empty
 
 
 def test_filter_traits(filter_frame):
     """Check filtering based on a list of traits"""
     traits = ["foo"]
-    filtered = mr.filter_gwas(filter_frame, 0.01, 0.01, 0.01, traits)
+    filtered = mr.filter_effect_snps(filter_frame, 0.01, 0.01, 0.01, traits)
     assert list(filtered.trait.unique()) == traits
 
     traits = ["bar"]
-    filtered = mr.filter_gwas(filter_frame, 0.01, 0.01, 0.01, traits)
+    filtered = mr.filter_effect_snps(filter_frame, 0.01, 0.01, 0.01, traits)
     assert list(filtered.trait.unique()) == traits
 
     traits = ["baz"]
-    filtered = mr.filter_gwas(filter_frame, 0.01, 0.01, 0.01, traits)
+    filtered = mr.filter_effect_snps(filter_frame, 0.01, 0.01, 0.01, traits)
     assert filtered.empty

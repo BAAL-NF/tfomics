@@ -6,7 +6,7 @@ from scipy.stats import norm
 from statsmodels.sandbox.stats.multicomp import multipletests
 
 
-def filter_gwas(
+def filter_effect_snps(
     effect,
     min_MAF,
     min_HWE,
@@ -99,7 +99,9 @@ def naive_effect_on_trait(
     # FIXME: what's HWE and iscore?
     # FIXME: maybe the filtering should be separate from the MR analysis.
 
-    effect = filter_gwas(effect, min_MAF, min_HWE, min_iscore, trait_list, columns_gwas)
+    effect = filter_effect_snps(
+        effect, min_MAF, min_HWE, min_iscore, trait_list, columns_gwas
+    )
     if permute:
         effect[columns_gwas["rsid"]] = np.random.permutation(
             effect[columns_gwas["rsid"]]
