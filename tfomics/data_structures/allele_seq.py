@@ -4,7 +4,7 @@ from enum import Enum, unique
 import numpy
 import pandas
 
-from tfomics.data_structures.reference_genome import ReferenceGenome
+from .reference_genome import ReferenceGenome
 
 
 class AlleleSeqData:
