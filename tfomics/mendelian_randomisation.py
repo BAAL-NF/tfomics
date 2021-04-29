@@ -64,6 +64,7 @@ def _fit_effects(row: pd.Series) -> pd.Series:
         "effect_allele",
     ]
 
+    # Determine the effect allele, and orient the effect accordingly.
     if row.allele == row.alt:
         allele_swap_sign = 1
         effect_allele = "alt"
