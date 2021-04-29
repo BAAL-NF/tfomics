@@ -1,20 +1,35 @@
 """MR analysis function for combinging AlleleSeq or BaalChIP data with GeneAtlas GWAS results"""
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
+from pandas.core.frame import DataFrame
 from scipy.stats import norm
 from statsmodels.sandbox.stats.multicomp import multipletests
 
-# FIXME: add type hints
-
 
 def filter_effect_snps(
-    effect,
-    min_MAF,
-    min_HWE,
-    min_iscore,
-    trait_list,
-):
+    effect: pd.DataFrame,
+    min_MAF: float,
+    min_HWE: float,
+    min_iscore: float,
+    trait_list: List[str],
+) -> pd.DataFrame:
+    """
+    Apply a set of filters to a GWAS dataframe
+
+    Input:
+    - effect: dataframe of GWAS results
+    - min_MAF: required minimum Minor Allele Frequency for inclusion in the analysis
+    - min_HWE: required minimum HWE for inclusion in the analysis
+    - min_iscore: required minimum iscore for inclusion in the analysis
+    - trait_list: list of traits to select from the effect-SNPs
+
+    Output:
+    - Filtered set of SNPs from the GWAS dataframe
+    """
+    # FIXME: what's HWE and iscore?
+
     query = f"""(MAF >= {min_MAF} ) and \
                 (HWE >= {min_HWE}) and \
                 (iscore >= {min_iscore})"""
@@ -25,10 +40,12 @@ def filter_effect_snps(
     return effect.dropna(axis=0, how="any").query(query)
 
 
-def _calculate_causal_effect(exposure_effect, exposure_error, gwas_effect, gwas_error):
+def _calculate_causal_effect(
+    exposure_effect: float, exposure_error: float, gwas_effect: float, gwas_error: float
+) -> Tuple[float, float]:
     """Calulcate causal effect from BV effect size and GWAS beta"""
 
-    causal_effect = float(gwas_effect) / float(exposure_effect)
+    causal_effect = gwas_effect / exposure_effect
 
     errors_squared = gwas_error ** 2 / exposure_effect ** 2
     errors_squared += (gwas_effect ** 2) * (exposure_error ** 2) / exposure_effect ** 4
@@ -37,7 +54,7 @@ def _calculate_causal_effect(exposure_effect, exposure_error, gwas_effect, gwas_
     return causal_effect, standard_error
 
 
-def _fit_effects(row):
+def _fit_effects(row: pd.Series) -> pd.Series:
     # FIXME: The swap sign here is odd. Why is ref the one with sign -> -1
     return_index = [
         "MR total causal effect",
@@ -72,27 +89,21 @@ def _fit_effects(row):
 
 
 def naive_effect_on_trait(
-    exposure,
-    effect,
+    exposure: pd.DataFrame,
+    effect: pd.DataFrame,
     permute=False,
-):
+) -> pd.DataFrame:
     """
     MR analysis of a set of SNPs
 
     Inputs:
     - exposure: dataframe of variants used as exposure variables for the MR analysis, along with their effect on
     - effect: dataframe containing the estimated effect of SNPs on phenotypic trait, as determined by GWAS analysis
-    - trait_list: list of traits to select from the effect-SNPs
     - permute: whether to permute the RSIDs for a permutation test
-    - min_MAF: required minimum Minor Allele Frequency for inclusion in the analysis
-    - min_HWE: required minimum HWE for inclusion in the analysis
-    - min_iscore: required minimum iscore for inclusion in the analysis
     """
 
     # FIXME: the MR here isn't just going by what allele, it's adjusting for the strength of the effect.
     #        it shouldn't matter, since it's just a rescaling, but it's not straight MR.
-    # FIXME: what's HWE and iscore?
-
     if permute:
         effect[["rsid"]] = np.random.permutation(effect[["rsid"]])
 

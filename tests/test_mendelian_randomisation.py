@@ -438,7 +438,6 @@ def test_singularity_if_exposure_is_zero():
 
 def test_naive_mr(snps, gwas, mr_result):
     """Run a full end-to-end test of the naive MR analysis"""
-    gwas_codes = list(gwas.trait)
     mr_snps = mr.naive_effect_on_trait(snps, gwas, permute=False)
 
     pd.testing.assert_frame_equal(mr_snps, mr_result)
