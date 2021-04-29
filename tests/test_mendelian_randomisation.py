@@ -8,18 +8,18 @@ import pandas as pd
 def snps():
     return pd.DataFrame(
         {
-            "snp": {6: "rs3814316", 372: "rs7622475", 4285: "rs8105903"},
-            "REF": {6: "G", 372: "T", 4285: "C"},
-            "ALT": {6: "A", 372: "C", 4285: "A"},
+            "rsid": {0: "rs3814316", 1: "rs7622475", 2: "rs8105903"},
+            "ref": {0: "G", 1: "T", 2: "C"},
+            "alt": {0: "A", 1: "C", 2: "A"},
             "es": {
-                6: -0.3676815447570283,
-                372: 0.8662327873562312,
-                4285: -0.8788795836308416,
+                0: -0.3676815447570283,
+                1: 0.8662327873562312,
+                2: -0.8788795836308416,
             },
             "es_sterr": {
-                6: 0.0795660627120642,
-                372: 0.0352281703029674,
-                4285: 0.0489189501992082,
+                0: 0.0795660627120642,
+                1: 0.0352281703029674,
+                2: 0.0489189501992082,
             },
         }
     ).reset_index(drop=True)
@@ -149,7 +149,7 @@ def gwas():
 def mr_result():
     return pd.DataFrame(
         {
-            "snp": {
+            "rsid": {
                 0: "rs3814316",
                 1: "rs3814316",
                 2: "rs3814316",
@@ -163,7 +163,7 @@ def mr_result():
                 10: "rs8105903",
                 11: "rs8105903",
             },
-            "REF": {
+            "ref": {
                 0: "G",
                 1: "G",
                 2: "G",
@@ -177,7 +177,7 @@ def mr_result():
                 10: "C",
                 11: "C",
             },
-            "ALT": {
+            "alt": {
                 0: "A",
                 1: "A",
                 2: "A",
@@ -218,20 +218,6 @@ def mr_result():
                 9: 0.0489189501992082,
                 10: 0.0489189501992082,
                 11: 0.0489189501992082,
-            },
-            "rsid": {
-                0: "rs3814316",
-                1: "rs3814316",
-                2: "rs3814316",
-                3: "rs3814316",
-                4: "rs7622475",
-                5: "rs7622475",
-                6: "rs7622475",
-                7: "rs7622475",
-                8: "rs8105903",
-                9: "rs8105903",
-                10: "rs8105903",
-                11: "rs8105903",
             },
             "allele": {
                 0: "A",
@@ -453,33 +439,7 @@ def test_singularity_if_exposure_is_zero():
 def test_naive_mr(snps, gwas, mr_result):
     """Run a full end-to-end test of the naive MR analysis"""
     gwas_codes = list(gwas.trait)
-    columns_BVs = {
-        "rsid": "snp",
-        "es": "es",
-        "es_sterr": "es_sterr",
-        "alt": "ALT",
-        "ref": "REF",
-    }
-
-    columns_GWAS = {
-        "rsid": "rsid",
-        "trait": "trait",
-        "MAF": "MAF",
-        "HWE": "HWE",
-        "iscore": "iscore",
-        "allele": "allele",
-        "beta": "beta",
-        "NSE": "NSE",
-    }
-
-    mr_snps = mr.naive_effect_on_trait(
-        snps,
-        gwas,
-        gwas_codes,
-        permute=False,
-        columns_bvs=columns_BVs,
-        columns_gwas=columns_GWAS,
-    )
+    mr_snps = mr.naive_effect_on_trait(snps, gwas, permute=False)
 
     pd.testing.assert_frame_equal(mr_snps, mr_result)
 

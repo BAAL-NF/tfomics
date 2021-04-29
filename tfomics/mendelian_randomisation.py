@@ -5,6 +5,8 @@ import pandas as pd
 from scipy.stats import norm
 from statsmodels.sandbox.stats.multicomp import multipletests
 
+# FIXME: add type hints
+
 
 def filter_effect_snps(
     effect,
@@ -12,14 +14,13 @@ def filter_effect_snps(
     min_HWE,
     min_iscore,
     trait_list,
-    columns={"MAF": "MAF", "HWE": "HWE", "iscore": "iscore", "trait": "trait"},
 ):
-    query = f"""({columns['MAF']} >= {min_MAF} ) and \
-                ({columns['HWE']} >= {min_HWE}) and \
-                ({columns['iscore']} >= {min_iscore})"""
+    query = f"""(MAF >= {min_MAF} ) and \
+                (HWE >= {min_HWE}) and \
+                (iscore >= {min_iscore})"""
 
     if trait_list is not None:
-        query += f" and ({columns['trait']} in {trait_list})"
+        query += f" and (trait in {trait_list})"
 
     return effect.dropna(axis=0, how="any").query(query)
 
@@ -36,7 +37,7 @@ def _calculate_causal_effect(exposure_effect, exposure_error, gwas_effect, gwas_
     return causal_effect, standard_error
 
 
-def _fit_effects(row, columns_bvs, columns_gwas):
+def _fit_effects(row):
     # FIXME: The swap sign here is odd. Why is ref the one with sign -> -1
     return_index = [
         "MR total causal effect",
@@ -46,21 +47,22 @@ def _fit_effects(row, columns_bvs, columns_gwas):
         "effect_allele",
     ]
 
-    if row[columns_gwas["allele"]] == row[columns_bvs["alt"]]:
+    if row.allele == row.alt:
         allele_swap_sign = 1
         effect_allele = "alt"
-    elif row[columns_gwas["allele"]] == row[columns_bvs["ref"]]:
+    elif row.allele == row.ref:
         allele_swap_sign = -1
         effect_allele = "ref"
     else:
         return pd.Series(np.nan(len(return_index)), index=return_index)
 
     causal_es, causal_se = _calculate_causal_effect(
-        allele_swap_sign * row[columns_bvs["es"]],
-        row[columns_bvs["es_sterr"]],
-        row[columns_gwas["beta"]],
-        row[columns_gwas["NSE"]],
+        allele_swap_sign * row.es,
+        row.es_sterr,
+        row.beta,
+        row.NSE,
     )
+    # Calculate the z-score and associated p-value
     z = causal_es / causal_se
     p = norm.sf(abs(z)) * 2.0
 
@@ -72,13 +74,7 @@ def _fit_effects(row, columns_bvs, columns_gwas):
 def naive_effect_on_trait(
     exposure,
     effect,
-    trait_list=None,
     permute=False,
-    columns_bvs={},
-    columns_gwas={},
-    min_MAF=1.0e-3,
-    min_HWE=1.0e-50,
-    min_iscore=0.9,
 ):
     """
     MR analysis of a set of SNPs
@@ -95,25 +91,14 @@ def naive_effect_on_trait(
 
     # FIXME: the MR here isn't just going by what allele, it's adjusting for the strength of the effect.
     #        it shouldn't matter, since it's just a rescaling, but it's not straight MR.
-    # FIXME: ditch the column dicts
     # FIXME: what's HWE and iscore?
-    # FIXME: maybe the filtering should be separate from the MR analysis.
 
-    effect = filter_effect_snps(
-        effect, min_MAF, min_HWE, min_iscore, trait_list, columns_gwas
-    )
     if permute:
-        effect[columns_gwas["rsid"]] = np.random.permutation(
-            effect[columns_gwas["rsid"]]
-        )
+        effect[["rsid"]] = np.random.permutation(effect[["rsid"]])
 
-    candidates = exposure.merge(effect, left_on="snp", right_on="rsid", how="left")
+    candidates = exposure.merge(effect, on="rsid", how="left")
 
-    out = candidates.join(
-        candidates.apply(
-            _fit_effects, axis=1, columns_bvs=columns_bvs, columns_gwas=columns_gwas
-        )
-    )
+    out = candidates.join(candidates.apply(_fit_effects, axis=1))
 
     # Multiple testing correction with the Benjamini-Hotchberg method
     out["q values"] = multipletests(out["p value"], method="fdr_bh")[1]
