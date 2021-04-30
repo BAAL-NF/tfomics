@@ -58,7 +58,6 @@ def _calculate_causal_effect(
 
 
 def _fit_effects(row: pd.Series) -> pd.Series:
-    # FIXME: The swap sign here is odd. Why is ref the one with sign -> -1
     return_index = [
         "MR total causal effect",
         "MR se",
@@ -113,8 +112,6 @@ def naive_effect_on_trait(
     - Set of SNPs after MR analysis, including effect size, p-values and q-values.
     """
 
-    # FIXME: the MR here isn't just going by what allele, it's adjusting for the strength of the effect.
-    #        it shouldn't matter, since it's just a rescaling, but it's not straight MR.
     if permute:
         effect[["rsid"]] = np.random.permutation(effect[["rsid"]])
 
@@ -122,7 +119,7 @@ def naive_effect_on_trait(
 
     out = candidates.join(candidates.apply(_fit_effects, axis=1)).dropna()
 
-    # Multiple testing correction with the Benjamini-Hotchberg method
+    # Multiple testing correction with the Benjamini-Hochberg method
     out["q values"] = multipletests(out["p value"], method="fdr_bh")[1]
 
     return out
