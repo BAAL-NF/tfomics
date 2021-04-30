@@ -120,7 +120,7 @@ def naive_effect_on_trait(
 
     candidates = exposure.merge(effect, on="rsid", how="left")
 
-    out = candidates.join(candidates.apply(_fit_effects, axis=1))
+    out = candidates.join(candidates.apply(_fit_effects, axis=1)).dropna()
 
     # Multiple testing correction with the Benjamini-Hotchberg method
     out["q values"] = multipletests(out["p value"], method="fdr_bh")[1]
