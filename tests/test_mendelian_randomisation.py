@@ -2,6 +2,7 @@
 import pytest
 import tfomics.mendelian_randomisation as mr
 import pandas as pd
+import numpy as np
 
 
 @pytest.fixture
@@ -551,3 +552,10 @@ def test_filter_traits(filter_frame):
     traits = ["baz"]
     filtered = mr.filter_effect_snps(filter_frame, 0.01, 0.01, 0.01, traits)
     assert filtered.empty
+
+
+def test_fit_effect_returns_nan_if_wrong_allele():
+    wrong_alleles = pd.Series({"ref": ["A"], "alt": ["T"], "allele": ["C"]})
+    np.testing.assert_array_equal(
+        mr._fit_effects(wrong_alleles).to_numpy(), np.full(5, np.nan)
+    )

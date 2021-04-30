@@ -1,19 +1,22 @@
-"""MR analysis function for combinging AlleleSeq or BaalChIP data with GeneAtlas GWAS results"""
-from typing import List, Tuple
+"""MR analysis function for combinging AlleleSeq or BaalChIP data with GeneAtlas GWAS results.
+Intended use: 
+- Filter your GWAS results using filter_effect_snps
+- Calculate naive_effect_on_trait using your list of binding variants and 
+"""
+from typing import List, Tuple, Optional
 
 import numpy as np
 import pandas as pd
-from pandas.core.frame import DataFrame
 from scipy.stats import norm
 from statsmodels.sandbox.stats.multicomp import multipletests
 
 
 def filter_effect_snps(
     effect: pd.DataFrame,
-    min_MAF: float,
-    min_HWE: float,
-    min_iscore: float,
-    trait_list: List[str],
+    min_MAF: float = 1.0e-3,
+    min_HWE: float = 1.0e-50,
+    min_iscore: float = 0.9,
+    trait_list: Optional[List[str]] = None,
 ) -> pd.DataFrame:
     """
     Apply a set of filters to a GWAS dataframe
@@ -72,7 +75,7 @@ def _fit_effects(row: pd.Series) -> pd.Series:
         allele_swap_sign = -1
         effect_allele = "ref"
     else:
-        return pd.Series(np.nan(len(return_index)), index=return_index)
+        return pd.Series(np.full(len(return_index), np.nan), index=return_index)
 
     causal_es, causal_se = _calculate_causal_effect(
         allele_swap_sign * row.es,
@@ -92,15 +95,22 @@ def _fit_effects(row: pd.Series) -> pd.Series:
 def naive_effect_on_trait(
     exposure: pd.DataFrame,
     effect: pd.DataFrame,
-    permute=False,
+    permute: bool = False,
 ) -> pd.DataFrame:
     """
-    MR analysis of a set of SNPs
+    MR analysis of a set of SNPs. This function takes two sets of SNPs for effect and exposure measurements and performs
+    a mendelian randomisation analysis for all snp-trait pairs. It uses the Benjamini-Hochberg method to determine
+    q-values for each SNP based on the distribution of p-values in the analysis.
+
+    If permute is set, the analysis is treated as a permutation test, and the effect SNPs are randomly reshuffled.
 
     Inputs:
     - exposure: dataframe of variants used as exposure variables for the MR analysis, along with their effect on
     - effect: dataframe containing the estimated effect of SNPs on phenotypic trait, as determined by GWAS analysis
     - permute: whether to permute the RSIDs for a permutation test
+
+    Output:
+    - Set of SNPs after MR analysis, including effect size, p-values and q-values.
     """
 
     # FIXME: the MR here isn't just going by what allele, it's adjusting for the strength of the effect.
