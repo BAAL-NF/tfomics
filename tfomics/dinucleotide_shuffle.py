@@ -34,9 +34,9 @@ def get_dinucleotide_sequence(section):
     dinucleotide_sequence = defaultdict(list)
 
     # Compute count and lists
-    for i in range(len(section)-1):
+    for i in range(len(section) - 1):
         start = section[i]
-        end = section[i+1]
+        end = section[i + 1]
         dinucleotide_sequence[start].append(end)
 
     return dinucleotide_sequence
@@ -65,7 +65,7 @@ def connected_to_last(edge_list, nucleotide_list, last_character):
 
     # Back-propagate from the last nucleotide to all others
     # The longest possible path in the graph is n-1
-    for _ in range(len(nucleotide_list)-1):
+    for _ in range(len(nucleotide_list) - 1):
         for (start, end) in edge_list:
             if connected[end]:
                 connected[start] = True
@@ -74,7 +74,7 @@ def connected_to_last(edge_list, nucleotide_list, last_character):
 
 
 def pick_edges(section, nucleotide_list, dinucleotide_sequence, rng):
-    """ Randomly pick a set of edges from the graph of dinucleotide connections,
+    """Randomly pick a set of edges from the graph of dinucleotide connections,
     ensuring that the edges are all connected directly or indirectly to the last
     character in the section.
 
@@ -116,10 +116,9 @@ def get_nucleotide_list(section):
     """
     nucleotide_set = set(section)
     invalid_nucleotides = nucleotide_set - {"A", "C", "G", "T"}
-    assert not invalid_nucleotides, (
-        "Input string contained non-nucleotide letters: {}"
-        .format(invalid_nucleotides)
-    )
+    assert (
+        not invalid_nucleotides
+    ), "Input string contained non-nucleotide letters: {}".format(invalid_nucleotides)
 
     # The order of the nucleotide set is non-deterministic, so sort it
     # to ensure reproducibility
@@ -127,7 +126,7 @@ def get_nucleotide_list(section):
 
 
 def dinucleotide_shuffle(section, rng=None):
-    """ Construct a new random eulerian path throught he nucleotide string by
+    """Construct a new random eulerian path throught he nucleotide string by
     - Counting all the edges in the nucleotide connection graph
     - Randomly picking an edge emerging from each vertex in the graph except for
       one corresponding to the nucleotide in the section.
@@ -168,7 +167,7 @@ def dinucleotide_shuffle(section, rng=None):
     path = section[0]
     previous_character = section[0]
 
-    for _ in range(len(section)-1):
+    for _ in range(len(section) - 1):
         current_character = dinucleotide_sequence[previous_character][0]
         path += current_character
         del dinucleotide_sequence[previous_character][0]
