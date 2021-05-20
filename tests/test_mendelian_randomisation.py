@@ -4,7 +4,8 @@ import tfomics.mendelian_randomisation as mr
 import pandas as pd
 import numpy as np
 
-
+# FIXME: these fixtures and the end-to-end test isn't very informative.
+# We should spend some time on better end-to-end tests.
 @pytest.fixture
 def snps():
     return pd.DataFrame(
@@ -415,7 +416,6 @@ def test_causal_effect_no_gwas_effect():
     assert (0.0, 2.0) == mr._calculate_causal_effect(1.0, 42.3, 0.0, 2.0)
 
     # Changing exposure_error does not change that.
-    # FIXME: that is mathematically the case, but why?
     assert (0.0, 2.0) == mr._calculate_causal_effect(1.0, 22.1, 0.0, 2.0)
 
     # Error is inversely proportional to exposure_effect
