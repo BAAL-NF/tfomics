@@ -16,7 +16,25 @@ To install the current dev-version using pip, run
 pip install --upgrade --force-reinstall git+ssh://git@git.ecdf.ed.ac.uk/tfomics/prototypes/tfomics-utils.git
 ```
 
-# Code standards
+# Development
+
+## Publishing the package
+
+The project has a gitlab remote configured, though you will need an access token with read/write access to the package registry in order to use it.
+Once you have one, you can set your shell up with the following environment variables in order to publish to gitlab
+
+```bash
+POETRY_HTTP_BASIC_GITLAB_USERNAME="<token-name>"
+POETRY_HTTP_BASIC_GITLAB_PASSWORD="<token>"
+```
+
+To publish a new version of the library, make sure you
+
+- update the version number in pyproject.toml
+- tag the relevant commit
+- run `poetry publish --repository gitlab`
+
+## Code standards
 
 Below is a wish list for code standards, at current no CI exists and so none of this is strongly enforced.
 
