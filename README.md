@@ -2,7 +2,10 @@
 
 A collection of functions and utilities for the tfomics project.
 
-To add this project to your poetry project, run
+A python package is available in the gitlab package registry.
+Please follow the instructions for [configuring pip to use the gitlab package registry](https://git.ecdf.ed.ac.uk/help/user/packages/pypi_repository/index.md) to install with pip.
+
+To add the current dev version of this project to your poetry project, run
 
 ```bash
 poetry add --git ssh://git@git.ecdf.ed.ac.uk/tfomics/prototypes/tfomics-utils.git
