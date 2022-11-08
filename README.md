@@ -5,12 +5,12 @@ A collection of functions and utilities for the tfomics project.
 To add this project to your poetry project, run
 
 ```bash
-poetry add --git ssh://git@git.ecdf.ed.ac.uk/oalmelid/tfomics.git
+poetry add --git ssh://git@git.ecdf.ed.ac.uk/tfomics/prototypes/tfomics-utils.git
 ```
 
 To install the current dev-version using pip, run
 ```bash
-pip install --upgrade --force-reinstall git+ssh://git@git.ecdf.ed.ac.uk/oalmelid/tfomics.git
+pip install --upgrade --force-reinstall git+ssh://git@git.ecdf.ed.ac.uk/tfomics/prototypes/tfomics-utils.git
 ```
 
 # Code standards
@@ -23,6 +23,6 @@ Below is a wish list for code standards, at current no CI exists and so none of 
 
 ## Unit tests
 
-Unit tests can be found in [the test folder](https://git.ecdf.ed.ac.uk/oalmelid/tfomics/tree/master/tests).
+Unit tests can be found in [the test folder](https://git.ecdf.ed.ac.uk/tfomics/prototypes/tfomics-utils/tree/master/tests).
 
 We use pytest for testing and pytest-cov for code coverage.
